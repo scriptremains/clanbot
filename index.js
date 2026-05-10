@@ -68,12 +68,22 @@ client.on('interactionCreate', async interaction => {
 
       const roleName = `[CLAN] ${clanName}`;
 
+      // Check if clan already exists
       const existingRole = interaction.guild.roles.cache.find(
         role => role.name.toLowerCase() === roleName.toLowerCase()
       );
 
       if (existingRole) {
         return interaction.editReply('❌ That clan already exists!');
+      }
+
+      // Check if user already owns a clan
+      const alreadyOwnsClan = interaction.member.roles.cache.find(
+        role => role.name.startsWith('[CLAN]')
+      );
+
+      if (alreadyOwnsClan) {
+        return interaction.editReply('❌ You already own a clan!');
       }
 
       // Create clan role
@@ -132,6 +142,19 @@ client.on('interactionCreate', async interaction => {
         await interaction.member.roles.remove(clanRole);
       } catch (err) {
         console.log('Could not remove clan role');
+      }
+
+      // Remove Clan Leader role
+      const clanLeaderRole = interaction.guild.roles.cache.find(
+        role => role.name === 'Clan Leader'
+      );
+
+      if (clanLeaderRole) {
+        try {
+          await interaction.member.roles.remove(clanLeaderRole);
+        } catch (err) {
+          console.log('Could not remove Clan Leader role');
+        }
       }
 
       // Delete clan role
